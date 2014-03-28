@@ -27,6 +27,7 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     Display disp = Display.getDisplay(this);
     Command cmdConnect = new Command("Se Connecter", Command.SCREEN, 0);
     Command cmdInscription = new Command("Annuler", Command.BACK, 0);
+    Command cmdValiderInscri = new Command("Valider", Command.BACK, 0);
     Form f = new Form("Connexion");
     Form f2 = new Form("Accueil");
     Form f3 = new Form("Inscription");
@@ -49,7 +50,8 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
         f.append(image);
         f.append(txtlogin);
         f.append(txtPassword);
-
+        f3.addCommand(cmdValiderInscri);
+f.setCommandListener((CommandListener) this);
         f.addCommand(cmdConnect);
         f.setCommandListener((CommandListener) this);
         f.addCommand(cmdInscription);
