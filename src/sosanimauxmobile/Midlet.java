@@ -51,7 +51,7 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
         f.append(txtlogin);
         f.append(txtPassword);
         f3.addCommand(cmdValiderInscri);
-f.setCommandListener((CommandListener) this);
+f.setCommandListener((CommandListener) this); 
         f.addCommand(cmdConnect);
         f.setCommandListener((CommandListener) this);
         f.addCommand(cmdInscription);
