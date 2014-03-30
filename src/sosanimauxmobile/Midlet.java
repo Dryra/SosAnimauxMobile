@@ -26,7 +26,8 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
 
     Display disp = Display.getDisplay(this);
     Command cmdConnect = new Command("Se Connecter", Command.SCREEN, 0);
-    Command cmdInscription = new Command("Annuler", Command.BACK, 0);
+    Command cmdInscription = new Command("Inscription", Command.BACK, 0);
+    Command cmdValiderInscri = new Command("Inscription", Command.BACK, 0);
     Form f = new Form("Connexion");
     Form f2 = new Form("Accueil");
     Form f3 = new Form("Inscription");
@@ -34,7 +35,7 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     TextField txtlogin = new TextField("Login", null, 50, TextField.ANY);
     TextField txtPassword = new TextField("Mot de passe", null, 50, TextField.PASSWORD);
     Alert alt = new Alert("Error", "Vous devez entrer votre login", null, AlertType.ERROR);
-    Alert alt2 = new Alert("Error", "Vous devez entrer votre login", null, AlertType.ERROR);
+    Alert alt2 = new Alert("Error", "Vous devez entrer votre Mot de passe", null, AlertType.ERROR);
     Image image;
 
     public void startApp() {
@@ -74,6 +75,12 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
 
             }
         }
+        if(c==cmdInscription)
+        {
+        
+        disp.setCurrent(f3);
+        }
+        
     }
 
     public void itemStateChanged(Item item) {
