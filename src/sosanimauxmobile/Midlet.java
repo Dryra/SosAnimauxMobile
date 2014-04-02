@@ -11,7 +11,12 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.AlertType;
+
 import javax.microedition.lcdui.Canvas;
+
+import javax.microedition.lcdui.Choice;
+import javax.microedition.lcdui.ChoiceGroup;
+
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
@@ -24,24 +29,33 @@ import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemStateListener;
 import javax.microedition.lcdui.List;
+
 import javax.microedition.lcdui.StringItem;
+
 import javax.microedition.lcdui.TextField;
 import javax.microedition.lcdui.Ticker;
 import javax.microedition.midlet.*;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import sosanimauxmobile.Midlet.MIDPCanvas;
+
 
 
 /**
  * @author Dryra
  */
-public class Midlet extends MIDlet implements CommandListener, ItemStateListener {
+
+
     
-List lst = new List("Adherants", List.IMPLICIT);
+
+
+public class Midlet extends MIDlet implements CommandListener, ItemStateListener, Runnable {
+
+    private ChoiceGroup radioButtons = new ChoiceGroup("Sexe", Choice.EXCLUSIVE);
+    private ChoiceGroup combo = new ChoiceGroup("Ville", Choice.EXCLUSIVE);
+
     Display disp = Display.getDisplay(this);
     Command cmdConnect = new Command("Se Connecter", Command.SCREEN, 0);
-    Command cmdInscription = new Command("Annuler", Command.BACK, 0);
+    Command cmdInscription = new Command("Inscription", Command.EXIT, 0);
     Command cmdValiderInscri = new Command("Valider", Command.BACK, 0);
     Form f = new Form("Connexion");
     Form f2 = new Form("Accueil");
@@ -67,6 +81,7 @@ List lst = new List("Adherants", List.IMPLICIT);
     Alert alt = new Alert("Error", "Vous devez entrer votre login", null, AlertType.ERROR);
     Alert alt2 = new Alert("Error", "Vous devez entrer votre Mot de passe", null, AlertType.ERROR);
     Image image;
+
     
     
     String[] Champs={"Gérer mon profil \n ","Déclaration","Consultation","Adoption","Recherche","Pensions","Déconnexion"} ;
@@ -99,8 +114,21 @@ public Midlet()
     
     
     
+
+    //inscription
+    TextField txtnom = new TextField("Nom :*", null, 50, TextField.ANY);
+    TextField txtprenom = new TextField("Prenom :*", null, 50, TextField.ANY);
+    TextField txtmail = new TextField("Email :*", null, 50, TextField.ANY);
+    TextField txtpass = new TextField("Mot de passe :*", null, 50, TextField.ANY);
+    TextField txtadr = new TextField("Adresse :*", null, 50, TextField.ANY);
+    TextField txtage = new TextField("Age :*", null, 50, TextField.ANY);
+    TextField Telephone = new TextField("Téléphone :*", null, 50, TextField.ANY);
+    Alert alert = new Alert("Error", "Veuillez saisie tous les champs obligatoires", null, AlertType.ERROR);
+
+    //Inscription
+
     public void startApp() {
-       disp.setCurrent(new MIDPCanvas() ); 
+       disp.setCurrent(new Midlet.MIDPCanvas() ); 
         
     
         try {
@@ -112,18 +140,22 @@ public Midlet()
         
         
 
+
+
         disp.setCurrent(f);
         f.setTicker(tk);
         f.append(image);
       
         f.append(txtlogin);
         f.append(txtPassword);
+        f3.setCommandListener((CommandListener) this);
         f3.addCommand(cmdValiderInscri);
-f.setCommandListener((CommandListener) this); 
+        f.setCommandListener((CommandListener) this);
         f.addCommand(cmdConnect);
         f.setCommandListener((CommandListener) this);
         f.addCommand(cmdInscription);
         f.setCommandListener((CommandListener) this);
+
        
         
         //Le menu (Accueil)
@@ -135,6 +167,23 @@ f.setCommandListener((CommandListener) this);
         
         
         
+
+        f3.append(txtnom);
+        f3.append(txtprenom);
+        f3.append(txtmail);
+        f3.append(txtpass);
+        f3.append(txtadr);
+        radioButtons.append("Male", null);
+        radioButtons.append("Female", null);
+        f3.append(radioButtons);
+        f3.append(txtage);
+        f3.append(Telephone);
+        combo.append("Tunis", null);
+        combo.append("Sousse", null);
+        combo.append("Kairouen", null);
+        f3.append(combo);
+
+
     }
 
     public void pauseApp() {
@@ -151,8 +200,16 @@ f.setCommandListener((CommandListener) this);
                 disp.setCurrent(alt);
             } else {
 
-                disp.setCurrent(new CanvasList("Acceuil",Champs,imgListe));
+                disp.setCurrent(new Midlet.CanvasList("Acceuil",Champs,imgListe));
 
+            }
+        } else if (c == cmdInscription) {
+            disp.setCurrent(f3);
+        }
+        if (c == cmdValiderInscri) {
+            if (txtnom.getString().equals("") || txtprenom.getString().equals("")
+                    || txtmail.getString().equals("") || txtPassword.getString().equals("") || txtadr.getString().equals("")) {
+                disp.setCurrent(alert);
             }
         }
         if(c==cmdInscription)
@@ -164,6 +221,10 @@ f.setCommandListener((CommandListener) this);
     }
 
     public void itemStateChanged(Item item) {
+    }
+
+    public void run() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     
