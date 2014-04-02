@@ -14,7 +14,9 @@ public class PersonneHandler extends DefaultHandler{
     String idTag = "close";
     String nomTag = "close";
     String prenTag = "close";
-    
+    String villeTag = "close";
+    String telTag = "close" ;
+    String ageTag = "close";
 
     public PersonneHandler() {
         personnes = new Vector();
@@ -43,6 +45,15 @@ public class PersonneHandler extends DefaultHandler{
             nomTag = "open";
         } else if (qName.equals("prenom")) {
             prenTag = "open";
+        
+        } else if (qName.equals("ville")) {
+            villeTag = "open";
+        }
+        else if (qName.equals("telephone")) {
+            telTag = "open";
+        }
+        else if (qName.equals("age")) {
+            ageTag = "open";
         }
     }
 
@@ -59,6 +70,18 @@ public class PersonneHandler extends DefaultHandler{
         } else if (qName.equals("prenom")) {
             prenTag = "close";
         }
+        else if (qName.equals("ville")) {
+            villeTag = "close";
+        }
+        else if (qName.equals("telephone")) {
+            telTag = "close";
+        }
+        
+        else if (qName.equals("age")) {
+            ageTag = "close";
+        }
+        
+        
     }
     // "characters" are the text inbetween tags
 
@@ -77,6 +100,24 @@ public class PersonneHandler extends DefaultHandler{
                     if (prenTag.equals("open")) {
                 String desc = new String(ch, start, length).trim();
                 currentPersonne.setPrenom(desc);
+            }
+           else
+                    if (villeTag.equals("open")) {
+                String ville = new String(ch, start, length).trim();
+                currentPersonne.setVille(ville);
+            }
+            else
+                    if (telTag.equals("open")) {
+                String telephone = new String(ch, start, length).trim();
+                int tel = Integer.parseInt(telephone);
+                currentPersonne.setTelephone(tel);
+            }
+            
+            else
+                    if (ageTag.equals("open")) {
+                String age = new String(ch, start, length).trim();
+                 int ag = Integer.parseInt(age);
+                currentPersonne.setAge(ag);
             }
         }
     }

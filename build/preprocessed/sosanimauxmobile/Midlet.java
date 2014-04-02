@@ -24,6 +24,7 @@ import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemStateListener;
 import javax.microedition.lcdui.List;
+import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.lcdui.Ticker;
 import javax.microedition.midlet.*;
@@ -51,6 +52,14 @@ List lst = new List("Adherants", List.IMPLICIT);
     Form f7=new Form("Adoption");
     Form f8=new Form("Recherche");
     Form f9=new Form("Pensions");
+    TextField nomadherant = new TextField("Nom", null, 50, TextField.ANY);
+    TextField prenomadherant = new TextField("Prenom", null, 50, TextField.ANY);
+    TextField ageadherant = new TextField("Age", null, 50, TextField.NUMERIC);
+    TextField telephoneadherant = new TextField("Telephone", null, 50, TextField.PHONENUMBER);
+    TextField villeadherant = new TextField("Ville", null, 50, TextField.ANY);
+    
+    
+    
     
     Ticker tk = new Ticker("Bienvenue Dans SOSAnimaux");
     TextField txtlogin = new TextField("Login", null, 50, TextField.ANY);
@@ -324,7 +333,8 @@ System.out.println("Error");
                         if (keyCode==Canvas.FIRE)
                         {
                            if (selectedItem==0)
-                           { disp.setCurrent(f4);
+                           { Thread th=new Thread(this);
+           th.start();
                            }    
                         if (selectedItem==1)
                             
@@ -342,8 +352,7 @@ System.out.println("Error");
                            { disp.setCurrent(f8);
                            }
                         if (selectedItem==5)
-                           { Thread th=new Thread(this);
-           th.start();
+                           { 
                            }
                         
                            
@@ -511,11 +520,24 @@ System.out.println("Error");
 
             if (personnes.length > 0) {
                 for (int i = 0; i < personnes.length; i++) {
-                    lst.append(personnes[i].getNom(), null);
-                    lst.append(personnes[i].getPrenom(), null);
-                    lst.append(personnes[i].getTelephone()+"", null);
-                    lst.append(personnes[i].getVille(), null);
-                    lst.append(personnes[i].getAge()+"", null);
+                    nomadherant.setString(personnes[i].getNom());
+                    prenomadherant.setString(personnes[i].getPrenom());
+                    villeadherant.setString(personnes[i].getVille());
+                    ageadherant.setString(personnes[i].getAge()+"");
+                    telephoneadherant.setString(personnes[i].getTelephone()+"");
+                    
+                    
+                    
+                    f4.append(nomadherant);
+                    f4.append(prenomadherant);
+                    f4.append(villeadherant);
+                    f4.append(ageadherant);
+                    f4.append(telephoneadherant);
+//                    lst.append(personnes[i].getNom(), null);
+//                    lst.append(personnes[i].getPrenom(), null);
+//                    lst.append(personnes[i].getTelephone()+"", null);
+//                    lst.append(personnes[i].getVille(), null);
+//                    lst.append(personnes[i].getAge()+"", null);
 
                 }
             }
@@ -523,7 +545,7 @@ System.out.println("Error");
         } catch (Exception e) {
             System.out.println("Exception:" + e.toString());
         }
-        disp.setCurrent(lst);
+        disp.setCurrent(f4);
             
    
    
