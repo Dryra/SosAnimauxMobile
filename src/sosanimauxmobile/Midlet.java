@@ -57,6 +57,11 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     Command cmdConnect = new Command("Se Connecter", Command.SCREEN, 0);
     Command cmdInscription = new Command("Inscription", Command.EXIT, 0);
     Command cmdValiderInscri = new Command("Valider", Command.BACK, 0);
+    Command cmdValiderchangeranimal = new Command("Valider", Command.EXIT, 0);
+    Command cmdRetourAffichanimal = new Command("Retour", Command.EXIT, 0);
+    Command cmdRetourListeAnim = new Command("Retour", Command.BACK, 0);
+    
+    
     Form f = new Form("Connexion");
     Form f2 = new Form("Accueil");
     Form f3 = new Form("Inscription");
@@ -66,13 +71,35 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     Form f7=new Form("Adoption");
     Form f8=new Form("Recherche");
     Form f9=new Form("Pensions");
+    Form f10=new Form("Changer mot de passe");
+    
+    TextField motdepasseadherant = new TextField("Nouveau Mot de passe", null, 50, TextField.ANY);
+    TextField ancienmotadherant = new TextField("Ancien Mot de passe", null, 50, TextField.ANY);
     TextField nomadherant = new TextField("Nom", null, 50, TextField.ANY);
     TextField prenomadherant = new TextField("Prenom", null, 50, TextField.ANY);
     TextField ageadherant = new TextField("Age", null, 50, TextField.NUMERIC);
     TextField telephoneadherant = new TextField("Telephone", null, 50, TextField.PHONENUMBER);
     TextField villeadherant = new TextField("Ville", null, 50, TextField.ANY);
+    TextField idanimal = new TextField("Id", null, 50, TextField.UNEDITABLE);
+    TextField nomanimal = new TextField("Nom", null, 50, TextField.ANY);
+    TextField raceanimal = new TextField("Race", null, 50, TextField.ANY);
+    TextField especeanimal = new TextField("Espece", null, 50, TextField.ANY);
+    TextField ageanimal = new TextField("Age", null, 50, TextField.ANY);
+    TextField adresseanimal = new TextField("Adresse", null, 50, TextField.ANY);
+    TextField sexeanimal = new TextField("Sexe", null, 50, TextField.ANY);
+    TextField vaccinanimal = new TextField("Vaccinée", null, 50, TextField.ANY);
+    TextField etatanimal = new TextField("Etat", null, 50, TextField.ANY);
+    TextField poidsanimal = new TextField("Poids", null, 50, TextField.ANY);
+    TextField couleuranimal = new TextField("Couleur", null, 50, TextField.ANY);
     
     
+    //Connexion
+    HttpConnection hc;
+    DataInputStream dis;
+    String url = "http://localhost:8888/zerzer/updateprofil.php";
+    String nomAnimal ="";
+            
+    int ch;
     
     
     Ticker tk = new Ticker("Bienvenue Dans SOSAnimaux");
@@ -81,6 +108,7 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     Alert alt = new Alert("Error", "Vous devez entrer votre login", null, AlertType.ERROR);
     Alert alt2 = new Alert("Error", "Vous devez entrer votre Mot de passe", null, AlertType.ERROR);
     Image image;
+List listeajoutsadherant = new List("Mes Ajouts", List.IMPLICIT);
 
     
     
@@ -92,9 +120,15 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     private Command selection=new Command("Choisir", Command.ITEM, 1);
     
     Personne[] personnes;
+    Animal[] Animaux;
     StringBuffer sb = new StringBuffer();
+    Command cmdchangerprofil = new Command("Changer", Command.EXIT, 0);
+        Command retourprofil = new Command("Retour", Command.BACK, 0);
+int reponsethread = 0 ;
+String[] ListeOptions={"Changer mon mot de passe","Afficher mes déclarations"};
+ChoiceGroup cgautreop = new ChoiceGroup("Autres Options", ChoiceGroup.POPUP,ListeOptions,null);
     
-    
+
 public Midlet()
     {  
         try {
@@ -128,7 +162,7 @@ public Midlet()
     //Inscription
 
     public void startApp() {
-       disp.setCurrent(new Midlet.MIDPCanvas() ); 
+       disp.setCurrent(new MIDPCanvas() ); 
         
     
         try {
@@ -155,8 +189,17 @@ public Midlet()
         f.setCommandListener((CommandListener) this);
         f.addCommand(cmdInscription);
         f.setCommandListener((CommandListener) this);
-
-       
+f4.addCommand(cmdchangerprofil);
+        f4.setCommandListener((CommandListener) this);
+        f4.addCommand(retourprofil);
+       f4.setCommandListener((CommandListener) this);
+        
+        
+       f10.append(ancienmotadherant);
+       f10.append(motdepasseadherant);
+        
+        
+        
         
         //Le menu (Accueil)
         menu.setSelectCommand(selection);
@@ -183,7 +226,7 @@ public Midlet()
         combo.append("Kairouen", null);
         f3.append(combo);
 
-
+listeajoutsadherant.setCommandListener(this);
     }
 
     public void pauseApp() {
@@ -200,7 +243,7 @@ public Midlet()
                 disp.setCurrent(alt);
             } else {
 
-                disp.setCurrent(new Midlet.CanvasList("Acceuil",Champs,imgListe));
+                disp.setCurrent(new CanvasList("Acceuil",Champs,imgListe));
 
             }
         } else if (c == cmdInscription) {
@@ -218,14 +261,94 @@ public Midlet()
         disp.setCurrent(f3);
         }
         
+        if(c==cmdchangerprofil)
+        {
+        reponsethread=1;
+        Thread th=new Thread(this);
+           th.start();
+        }
+        if(c==retourprofil)
+        {
+        
+        disp.setCurrent(new CanvasList("Acceuil",Champs,imgListe));
+        }
+        
+        if (c == List.SELECT_COMMAND) {
+            
+            showAnimal(listeajoutsadherant.getSelectedIndex());
+            
+        }
+        if(c==cmdRetourListeAnim)
+        { disp.setCurrent(f4);
+        }
+        
+        if(c==cmdRetourAffichanimal)
+        { disp.setCurrent(listeajoutsadherant);
+        
+        }
+        
+        
     }
 
     public void itemStateChanged(Item item) {
     }
 
     public void run() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+        if ((cgautreop.getSelectedIndex()==0))
+                {
+                   disp.setCurrent(f10);
+                    
+                }
+        
+        if((cgautreop.getSelectedIndex()==1))
+        {
+            try {
+            // this will handle our XML
+            AnimalHandler animalHandler = new AnimalHandler();
+            // get a parser object
+            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            // get an InputStream from somewhere (could be HttpConnection, for example)
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost:8888/zerzer/getXmlAnimaux.php");
+            DataInputStream dis = new DataInputStream(hc.openDataInputStream());
+            parser.parse(dis, animalHandler);
+            // display the result
+            Animaux = animalHandler.getAnimal();
+
+            if (Animaux.length > 0) {
+                for (int i = 0; i < Animaux.length; i++) {
+                     
+                    listeajoutsadherant.append(Animaux[i].getNom(), null);
+                   
+
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Exception:" + e.toString());
+        }
+            listeajoutsadherant.addCommand(cmdRetourListeAnim);
+        disp.setCurrent(listeajoutsadherant);
+        
+        }
+        
+        
+if(reponsethread==1)
+            {
+            try {
+            hc = (HttpConnection) Connector.open(url + "?nom=" + nomadherant.getString() + "&prenom=" + prenomadherant.getString()+ "&ville=" + villeadherant.getString()+ "&age=" + ageadherant.getString()+ "&telephone=" + telephoneadherant.getString());
+            dis = new DataInputStream(hc.openDataInputStream());
+            while ((ch = dis.read()) != -1) {
+                sb.append((char) ch);
+            }
+            if ("successfully added".equalsIgnoreCase(sb.toString().trim())) {
+                disp.setCurrent(f4);
+            } else {
+                System.out.println("Probléme au niveau de l'insertion");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }    }
 
     
     
@@ -400,7 +523,8 @@ System.out.println("Error");
                         if (selectedItem==1)
                             
                            {
-                               disp.setCurrent(f5);
+                              Thread th=new Thread(this);
+           th.start();
                                
                            }
                         if (selectedItem==2)
@@ -566,7 +690,8 @@ System.out.println("Error");
 	}
 
         public void run() {
-            
+            if (selectedItem==0) 
+            {
           try {
             // this will handle our XML
             PersonneHandler personnesHandler = new PersonneHandler();
@@ -594,6 +719,8 @@ System.out.println("Error");
                     f4.append(villeadherant);
                     f4.append(ageadherant);
                     f4.append(telephoneadherant);
+                    
+                    f4.append(cgautreop);
 //                    lst.append(personnes[i].getNom(), null);
 //                    lst.append(personnes[i].getPrenom(), null);
 //                    lst.append(personnes[i].getTelephone()+"", null);
@@ -607,30 +734,61 @@ System.out.println("Error");
             System.out.println("Exception:" + e.toString());
         }
         disp.setCurrent(f4);
+                
             
    
    
         }
-    }
+            
+        }      
+        
+        
+        
+        }
     
     
-   public void prestataire() 
-   {
-   }
+    
+   
+    
       
     
-   private String showPersonne(int i) {
-        String res = "";
-        if (personnes.length > 0) {
-            sb.append("* ");
-            sb.append(personnes[i].getPrenom());
-            sb.append("\n");
+   private void showAnimal(int i) {
+        
+        if (Animaux.length > 0) {
+            idanimal.setString(Animaux[i].getId()+"") ;
+            nomanimal.setString(Animaux[i].getNom()+"") ;
+            raceanimal.setString(Animaux[i].getRace()+"") ;
+            especeanimal.setString(Animaux[i].getEspece()+"") ;
+            ageanimal.setString(Animaux[i].getAge()+"") ;
+            etatanimal.setString(Animaux[i].getEtat()+"") ;
+            poidsanimal.setString(Animaux[i].getPoids()+"") ;
+            couleuranimal.setString(Animaux[i].getCouleur()+"") ;
+            vaccinanimal.setString(Animaux[i].getVaccin()+"") ;
+            sexeanimal.setString(Animaux[i].getSexe()+"") ;
+            adresseanimal.setString(Animaux[i].getAdresse()+"") ;
+            Form InfosAnimaux=new Form("Infos Animal : "+ Animaux[listeajoutsadherant.getSelectedIndex()].getNom());
+            InfosAnimaux.append(idanimal);
+            InfosAnimaux.append(nomanimal);
+            InfosAnimaux.append(raceanimal);
+            InfosAnimaux.append(especeanimal);
+            InfosAnimaux.append(ageanimal);
+            InfosAnimaux.append(etatanimal);
+            InfosAnimaux.append(poidsanimal);
+            InfosAnimaux.append(couleuranimal);
+            InfosAnimaux.append(vaccinanimal);
+            InfosAnimaux.append(sexeanimal);
+            InfosAnimaux.append(adresseanimal);
+            InfosAnimaux.addCommand(cmdRetourAffichanimal);
+            InfosAnimaux.setCommandListener((CommandListener) this);
+            InfosAnimaux.addCommand(cmdValiderchangeranimal);
+            InfosAnimaux.setCommandListener((CommandListener) this);
+            disp.setCurrent(InfosAnimaux);
         }
-        res = sb.toString();
-        sb = new StringBuffer("");
-        return res;
+        
     }
    
+   
+    
    
    
    
