@@ -26,6 +26,8 @@ public class AnimalHandler extends DefaultHandler{
     String etatTag = "close";
     String sexeTag = "close";
     String adresseTag = "close";
+    String latTag = "close";
+    String lonTag = "close";
 
     public AnimalHandler() {
         animaux= new Vector();
@@ -79,6 +81,12 @@ public class AnimalHandler extends DefaultHandler{
         else if (qName.equals("adr")) {
             adresseTag = "open";
         }
+        else if (qName.equals("lat")) {
+            latTag = "open";
+        }
+        else if (qName.equals("lon")) {
+            lonTag = "open";
+        }
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -117,6 +125,12 @@ public class AnimalHandler extends DefaultHandler{
         }
         else if (qName.equals("adr")) {
             adresseTag = "close";
+        }
+        else if (qName.equals("lat")) {
+            latTag = "close";
+        }
+        else if (qName.equals("lon")) {
+            lonTag = "close";
         }
         
         
@@ -186,6 +200,18 @@ public class AnimalHandler extends DefaultHandler{
                 String adresse = new String(ch, start, length).trim();
                  
                 currentAnimal.setAdresse(adresse);
+            }
+            else
+                    if (latTag.equals("open")) {
+                String latitude = new String(ch, start, length).trim();
+                 
+                currentAnimal.setLat(Double.parseDouble(latitude));
+            }
+            else
+                    if (lonTag.equals("open")) {
+                String longtitude = new String(ch, start, length).trim();
+                 
+                currentAnimal.setLon(Double.parseDouble(longtitude));
             }
         }
     }

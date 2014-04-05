@@ -22,6 +22,24 @@ public class Animal {
     private String autre;
     private String espece;
     private String adresse;
+    private double lat ;
+    private double lon ;
+
+    public void setLat(double lat) {
+        this.lat = lat;
+    }
+
+    public void setLon(double lon) {
+        this.lon = lon;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public double getLon() {
+        return lon;
+    }
 
     public void setAdresse(String adresse) {
         this.adresse = adresse;

@@ -4,6 +4,10 @@
  */
 package sosanimauxmobile;
 
+import com.jappit.midmaps.googlemaps.GoogleMaps;
+import com.jappit.midmaps.googlemaps.GoogleMapsCoordinates;
+import com.jappit.midmaps.googlemaps.GoogleStaticMap;
+import com.jappit.midmaps.googlemaps.GoogleStaticMapHandler;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Vector;
@@ -26,6 +30,7 @@ import javax.microedition.lcdui.Form;
 
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
+import javax.microedition.lcdui.ImageItem;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.ItemStateListener;
 import javax.microedition.lcdui.List;
@@ -72,7 +77,8 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     Form f8=new Form("Recherche");
     Form f9=new Form("Pensions");
     Form f10=new Form("Changer mot de passe");
-    
+    Form loadingDialog = new Form("Patientez svp..");
+    Form InfosAnimaux=new Form("Infos Animal : ");
     TextField motdepasseadherant = new TextField("Nouveau Mot de passe", null, 50, TextField.ANY);
     TextField ancienmotadherant = new TextField("Ancien Mot de passe", null, 50, TextField.ANY);
     TextField nomadherant = new TextField("Nom", null, 50, TextField.ANY);
@@ -127,7 +133,11 @@ List listeajoutsadherant = new List("Mes Ajouts", List.IMPLICIT);
 int reponsethread = 0 ;
 String[] ListeOptions={"Changer mon mot de passe","Afficher mes déclarations"};
 ChoiceGroup cgautreop = new ChoiceGroup("Autres Options", ChoiceGroup.POPUP,ListeOptions,null);
-    
+String[] Affichemplist={"Afficher la carte"};
+
+ChoiceGroup cgautreInfoGmap = new ChoiceGroup("Afficher l'emplacement", ChoiceGroup.POPUP,Affichemplist,null);
+    double latitude = 0;
+    double longtitude=0;
 
 public Midlet()
     {  
@@ -144,6 +154,8 @@ public Midlet()
             ex.printStackTrace();
         }
         menu = new List("Acceuil", List.IMPLICIT, Champs,imgListe) ;
+        
+        
 }
     
     
@@ -279,12 +291,24 @@ listeajoutsadherant.setCommandListener(this);
             
         }
         if(c==cmdRetourListeAnim)
-        { disp.setCurrent(f4);
+            
+        { InfosAnimaux.deleteAll();
+            listeajoutsadherant.deleteAll();
+            disp.setCurrent(f4);
         }
         
         if(c==cmdRetourAffichanimal)
-        { disp.setCurrent(listeajoutsadherant);
+            
+        { InfosAnimaux.deleteAll();
+//            listeajoutsadherant.deleteAll();
+            
+            disp.setCurrent(listeajoutsadherant);
         
+        }
+        if(c==cmdValiderchangeranimal)
+        { if (cgautreInfoGmap.getSelectedIndex()==0)
+        { disp.setCurrent(new GoogleMapsMarkerCanvas(this, d,latitude,longtitude));
+        }
         }
         
         
@@ -341,7 +365,8 @@ if(reponsethread==1)
                 sb.append((char) ch);
             }
             if ("successfully added".equalsIgnoreCase(sb.toString().trim())) {
-                disp.setCurrent(f4);
+                 disp.setCurrent(loadingDialog);
+                 disp.setCurrent(f4);
             } else {
                 System.out.println("Probléme au niveau de l'insertion");
             }
@@ -766,7 +791,9 @@ System.out.println("Error");
             vaccinanimal.setString(Animaux[i].getVaccin()+"") ;
             sexeanimal.setString(Animaux[i].getSexe()+"") ;
             adresseanimal.setString(Animaux[i].getAdresse()+"") ;
-            Form InfosAnimaux=new Form("Infos Animal : "+ Animaux[listeajoutsadherant.getSelectedIndex()].getNom());
+            latitude=Animaux[i].getLat();
+            longtitude=Animaux[i].getLon();
+ InfosAnimaux.append("Infos Animal : "+ Animaux[listeajoutsadherant.getSelectedIndex()].getNom());
             InfosAnimaux.append(idanimal);
             InfosAnimaux.append(nomanimal);
             InfosAnimaux.append(raceanimal);
@@ -782,12 +809,14 @@ System.out.println("Error");
             InfosAnimaux.setCommandListener((CommandListener) this);
             InfosAnimaux.addCommand(cmdValiderchangeranimal);
             InfosAnimaux.setCommandListener((CommandListener) this);
+           InfosAnimaux.append(cgautreInfoGmap); 
+           
             disp.setCurrent(InfosAnimaux);
         }
         
     }
    
-   
+ 
     
    
    
