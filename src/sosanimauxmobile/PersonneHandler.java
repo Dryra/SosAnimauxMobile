@@ -17,6 +17,7 @@ public class PersonneHandler extends DefaultHandler{
     String villeTag = "close";
     String telTag = "close" ;
     String ageTag = "close";
+    String mdpTag = "close";
 
     public PersonneHandler() {
         personnes = new Vector();
@@ -55,6 +56,9 @@ public class PersonneHandler extends DefaultHandler{
         else if (qName.equals("age")) {
             ageTag = "open";
         }
+        else if (qName.equals("mdp")) {
+            mdpTag = "open";
+        }
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
@@ -79,6 +83,9 @@ public class PersonneHandler extends DefaultHandler{
         
         else if (qName.equals("age")) {
             ageTag = "close";
+        }
+        else if (qName.equals("mdp")) {
+            mdpTag = "close";
         }
         
         
@@ -118,6 +125,12 @@ public class PersonneHandler extends DefaultHandler{
                 String age = new String(ch, start, length).trim();
                  int ag = Integer.parseInt(age);
                 currentPersonne.setAge(ag);
+            }
+            else
+                    if (mdpTag.equals("open")) {
+                String mdp = new String(ch, start, length).trim();
+                 
+                currentPersonne.setMdp(mdp);
             }
         }
     }

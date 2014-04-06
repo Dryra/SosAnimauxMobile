@@ -64,7 +64,12 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     Command cmdValiderInscri = new Command("Valider", Command.BACK, 0);
     Command cmdValiderchangeranimal = new Command("Valider", Command.EXIT, 0);
     Command cmdRetourAffichanimal = new Command("Retour", Command.EXIT, 0);
+    Command cmdRetourlisteprestataires = new Command("Retour", Command.EXIT, 0);
     Command cmdRetourListeAnim = new Command("Retour", Command.BACK, 0);
+    Command cmdRetourchangermdp = new Command("Retour", Command.BACK, 0);
+    Command cmdchangermdp = new Command("Valider", Command.EXIT, 0);
+    private Command selectionconsultation=new Command("CONSULTER", Command.ITEM, 1);
+    private Command selectionservice=new Command("Afficher", Command.ITEM, 1);
     
     
     Form f = new Form("Connexion");
@@ -79,6 +84,7 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     Form f10=new Form("Changer mot de passe");
     Form loadingDialog = new Form("Patientez svp..");
     Form InfosAnimaux=new Form("Infos Animal : ");
+    Form InfosPrestataire=new Form("Infos Prestataire : ");
     TextField motdepasseadherant = new TextField("Nouveau Mot de passe", null, 50, TextField.ANY);
     TextField ancienmotadherant = new TextField("Ancien Mot de passe", null, 50, TextField.ANY);
     TextField nomadherant = new TextField("Nom", null, 50, TextField.ANY);
@@ -97,6 +103,16 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
     TextField etatanimal = new TextField("Etat", null, 50, TextField.ANY);
     TextField poidsanimal = new TextField("Poids", null, 50, TextField.ANY);
     TextField couleuranimal = new TextField("Couleur", null, 50, TextField.ANY);
+    //Textfields de consulter Prestataire 
+    TextField Nomprest = new TextField("Nom :", null, 50, TextField.UNEDITABLE);
+    TextField Prenomprest = new TextField("Prénom :", null, 50, TextField.UNEDITABLE);
+    TextField Domaineprest = new TextField("Service :", null, 50, TextField.UNEDITABLE);
+    TextField Jour_dispprest = new TextField("Jour de Dispo :", null, 50, TextField.UNEDITABLE);
+    TextField Prix_serviceprest = new TextField("Prix :", null, 50, TextField.UNEDITABLE);
+    TextField Emailprest = new TextField("E-Mail :", null, 50, TextField.UNEDITABLE);
+    TextField Telephonepres = new TextField("N° Tél :", null, 50, TextField.UNEDITABLE);
+    TextField Adresseprest = new TextField("Adresse :", null, 50, TextField.UNEDITABLE);
+    
     
     
     //Connexion
@@ -107,17 +123,22 @@ public class Midlet extends MIDlet implements CommandListener, ItemStateListener
             
     int ch;
     
+    int repcons=0;
     
     Ticker tk = new Ticker("Bienvenue Dans SOSAnimaux");
     TextField txtlogin = new TextField("Login", null, 50, TextField.ANY);
     TextField txtPassword = new TextField("Mot de passe", null, 50, TextField.PASSWORD);
     Alert alt = new Alert("Error", "Vous devez entrer votre login", null, AlertType.ERROR);
     Alert alt2 = new Alert("Error", "Vous devez entrer votre Mot de passe", null, AlertType.ERROR);
+    Alert alt3 = new Alert("Error", "Vous devez remplir les deux champs", null, AlertType.ERROR);
+    Alert alt4 = new Alert("Error", "Mot de passe Incorrect", null, AlertType.ERROR);
+    Alert alt5 = new Alert("C'est Fait !", "Votre mot de passe a été changée avec succes", null, AlertType.CONFIRMATION);
     Image image;
 List listeajoutsadherant = new List("Mes Ajouts", List.IMPLICIT);
-
+List listeservices = new List("Liste de Services", List.IMPLICIT);
+private List choixconsultattion = new List("Type de consultation", List.IMPLICIT, new String[] {"Animaux", "Services","Pensions"}, null);
     
-    
+    String Pass="" ;
     String[] Champs={"Gérer mon profil \n ","Déclaration","Consultation","Adoption","Recherche","Pensions","Déconnexion"} ;
     Image[] imgListe = new Image[7];
     List menu;
@@ -127,6 +148,7 @@ List listeajoutsadherant = new List("Mes Ajouts", List.IMPLICIT);
     
     Personne[] personnes;
     Animal[] Animaux;
+    Prestataire[] prestataires;
     StringBuffer sb = new StringBuffer();
     Command cmdchangerprofil = new Command("Changer", Command.EXIT, 0);
         Command retourprofil = new Command("Retour", Command.BACK, 0);
@@ -202,26 +224,36 @@ public Midlet()
         f.addCommand(cmdInscription);
         f.setCommandListener((CommandListener) this);
 f4.addCommand(cmdchangerprofil);
-        f4.setCommandListener((CommandListener) this);
+        
         f4.addCommand(retourprofil);
        f4.setCommandListener((CommandListener) this);
         
         
+        
        f10.append(ancienmotadherant);
        f10.append(motdepasseadherant);
+       f10.addCommand(cmdRetourchangermdp);
+       f10.setCommandListener(this);
+       f10.addCommand(cmdchangermdp);
+       f10.setCommandListener(this);
+       
+       
         
         
         
         
         //Le menu (Accueil)
-        menu.setSelectCommand(selection);
-        menu.setCommandListener((CommandListener) this);
+        choixconsultattion.setSelectCommand(selectionconsultation);
+        choixconsultattion.setCommandListener((CommandListener) this);
 //        disp.setCurrent(menu);
-        menu.addCommand(selection);
+        choixconsultattion.addCommand(selectionconsultation);
         
         
+        listeservices.setSelectCommand(selectionservice);
+                listeservices.setCommandListener((CommandListener) this);
+        listeservices.addCommand(selectionconsultation);
         
-        
+                
 
         f3.append(txtnom);
         f3.append(txtprenom);
@@ -290,6 +322,12 @@ listeajoutsadherant.setCommandListener(this);
             showAnimal(listeajoutsadherant.getSelectedIndex());
             
         }
+        
+        if (c == selectionservice) {
+            
+            showPrestataire(listeservices.getSelectedIndex());
+            
+        }
         if(c==cmdRetourListeAnim)
             
         { InfosAnimaux.deleteAll();
@@ -311,6 +349,59 @@ listeajoutsadherant.setCommandListener(this);
         }
         }
         
+        if(c==cmdchangermdp)
+        { 
+            if (ancienmotadherant.getString().equals("") || motdepasseadherant.getString().equals("")) {
+                alt3.setTimeout(2000);//Alert.FOREVER pour rester forever
+                disp.setCurrent(alt3);
+            }
+            if (Pass.equals(ancienmotadherant.getString()))
+        {
+            Changermdp chgmdp = new Changermdp();
+            chgmdp.Changermdp(motdepasseadherant.getString(), ancienmotadherant.getString());
+             alt5.setTimeout(2000);//Alert.FOREVER pour rester forever
+                disp.setCurrent(alt5);
+        }
+            else 
+            { alt4.setTimeout(2000);//Alert.FOREVER pour rester forever
+                disp.setCurrent(alt4);
+            }
+        }
+        
+         if(c==cmdRetourchangermdp)
+         { disp.setCurrent(f10);
+         }
+        
+         if (c==selectionconsultation)
+        {
+
+            boolean selected[] = new boolean[choixconsultattion.size()];
+
+      // Fill array indicating whether each element is checked
+      choixconsultattion.getSelectedFlags(selected);
+
+
+        if (  selected[0] )
+        {
+        
+        }
+      if (  selected[1] )
+        {
+      repcons=1;
+        Thread th=new Thread(this);
+           th.start();
+        }
+      if (  selected[2] )
+        {
+       
+        }
+
+        }
+         
+         if(c==cmdRetourlisteprestataires)
+         {
+             disp.setCurrent(listeservices);
+         }
         
     }
 
@@ -355,6 +446,37 @@ listeajoutsadherant.setCommandListener(this);
         
         }
         
+        if((repcons==1))
+        {
+            try {
+            // this will handle our XML
+            PrestataireHandler prestaHandler = new PrestataireHandler();
+            // get a parser object
+            SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
+            // get an InputStream from somewhere (could be HttpConnection, for example)
+            HttpConnection hc = (HttpConnection) Connector.open("http://localhost:8888/zerzer/getXmlPrestataires.php");
+            DataInputStream dis = new DataInputStream(hc.openDataInputStream());
+            parser.parse(dis, prestaHandler);
+            // display the result
+            prestataires = prestaHandler.getPrestataire();
+
+            if (prestataires.length > 0) {
+                for (int i = 0; i < prestataires.length; i++) {
+                     
+                    listeservices.append(prestataires[i].getDomaine(), null);
+                   
+
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Exception:" + e.toString());
+        }
+            listeservices.addCommand(cmdRetourListeAnim);
+        disp.setCurrent(listeservices);
+        
+        }
+        
         
 if(reponsethread==1)
             {
@@ -373,7 +495,10 @@ if(reponsethread==1)
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-    }    }
+    }   
+    
+    
+    }
 
     
     
@@ -553,7 +678,7 @@ System.out.println("Error");
                                
                            }
                         if (selectedItem==2)
-                           { disp.setCurrent(f6);
+                           { disp.setCurrent(choixconsultattion);
                            }
                         if (selectedItem==3)
                            { disp.setCurrent(f7);
@@ -563,6 +688,11 @@ System.out.println("Error");
                            }
                         if (selectedItem==5)
                            { 
+                               
+                           }
+                        if (selectedItem==6)
+                           { 
+                             disp.setCurrent(f);  
                            }
                         
                            
@@ -736,6 +866,7 @@ System.out.println("Error");
                     villeadherant.setString(personnes[i].getVille());
                     ageadherant.setString(personnes[i].getAge()+"");
                     telephoneadherant.setString(personnes[i].getTelephone()+"");
+                    Pass=personnes[i].getMdp();
                     
                     
                     
@@ -816,6 +947,35 @@ System.out.println("Error");
         
     }
    
+   
+   private void showPrestataire(int i) {
+        
+        if (prestataires.length > 0) {
+            
+            Nomprest.setString(prestataires[i].getNom()+"") ;
+            Prenomprest.setString(prestataires[i].getPrenom()+"") ;
+            Domaineprest.setString(prestataires[i].getDomaine()+"") ;
+            Jour_dispprest.setString(prestataires[i].getJour_disp()+"") ;
+            Prix_serviceprest.setString(prestataires[i].getPrix_serv()+"") ;
+            Telephonepres.setString(prestataires[i].getTelephone()+"") ;
+            Adresseprest.setString(prestataires[i].getAdresse()+"") ;
+            
+ InfosPrestataire.append("Informations Service : "+ prestataires[listeservices.getSelectedIndex()].getDomaine());
+            InfosPrestataire.append(Nomprest);
+            InfosPrestataire.append(Prenomprest);
+            InfosPrestataire.append(Domaineprest);
+            InfosPrestataire.append(Jour_dispprest);
+            InfosPrestataire.append(Prix_serviceprest);
+            InfosPrestataire.append(Telephonepres);
+            InfosPrestataire.append(Adresseprest);
+            
+            
+            InfosPrestataire.addCommand(cmdRetourlisteprestataires);
+            InfosPrestataire.setCommandListener((CommandListener) this);
+            disp.setCurrent(InfosPrestataire);
+        }
+        
+    }
  
     
    

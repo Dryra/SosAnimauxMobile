@@ -12,6 +12,15 @@ public class Personne {
     private int telephone ;
     private String  ville ;
     private int age ;
+    private String mdp;
+
+    public void setMdp(String mdp) {
+        this.mdp = mdp;
+    }
+
+    public String getMdp() {
+        return mdp;
+    }
 
     public void setTelephone(int telephone) {
         this.telephone = telephone;
